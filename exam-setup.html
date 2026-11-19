@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EXAM//SIM – Configure Session</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Design Tokens ─────────────────────────────────────────────── */
+    :root {
+      --bg:       #0d1117;
+      --surface:  #161b22;
+      --surface2: #1c2330;
+      --border:   rgba(255, 255, 255, 0.08);
+      --text:     #e6edf3;
+      --muted:    #8b949e;
+      --accent:   #58a6ff;
+      --accent2:  #c8a84b;
+      --danger:   #f85149;
+      --success:  #3fb950;
+      --mono:     'IBM Plex Mono', monospace;
+      --sans:     'IBM Plex Sans', system-ui, sans-serif;
+
+      --radius-sm:  6px;
+      --radius-md:  10px;
+      --radius-lg:  16px;
+      --pill-h:     44px;
+      --transition: 0.18s ease;
+    }
+
+    /* ── Reset ─────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Layout ────────────────────────────────────────────────────── */
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px 16px;
+    }
+
+    /* Subtle grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page-wrapper {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 560px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    /* ── Header / Logo ─────────────────────────────────────────────── */
+    .header {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 10px 20px;
+      font-family: var(--mono);
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      line-height: 1;
+      box-shadow: 0 0 40px rgba(88, 166, 255, 0.06), 0 1px 0 rgba(255,255,255,0.05) inset;
+    }
+
+    .logo-badge .part-exam  { color: #ffffff; }
+    .logo-badge .part-slash { color: var(--accent2); }
+    .logo-badge .part-sim   { color: var(--muted); }
+
+    .header-subtitle {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    /* ── Card ──────────────────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      box-shadow:
+        0 4px 24px rgba(0, 0, 0, 0.4),
+        0 1px 0 rgba(255, 255, 255, 0.04) inset;
+    }
+
+    /* ── Section Label ─────────────────────────────────────────────── */
+    .section-label {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── Duration Pills ─────────────────────────────────────────────── */
+    .pill-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+      gap: 8px;
+    }
+
+    .pill {
+      height: var(--pill-h);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      background: var(--surface2);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition:
+        border-color var(--transition),
+        color var(--transition),
+        background var(--transition),
+        box-shadow var(--transition);
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .pill:hover:not(.active) {
+      border-color: rgba(200, 168, 75, 0.35);
+      color: var(--text);
+      background: rgba(200, 168, 75, 0.06);
+    }
+
+    .pill.active {
+      border-color: var(--accent2);
+      color: var(--accent2);
+      background: rgba(200, 168, 75, 0.12);
+      box-shadow: 0 0 0 1px rgba(200, 168, 75, 0.25), 0 0 16px rgba(200, 168, 75, 0.1);
+    }
+
+    .pill .pill-unit {
+      font-size: 0.65rem;
+      margin-left: 2px;
+      opacity: 0.75;
+    }
+
+    /* ── Custom Duration ───────────────────────────────────────────── */
+    .custom-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 4px;
+    }
+
+    .custom-label {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .custom-input-wrap {
+      position: relative;
+      flex: 1;
+    }
+
+    .custom-input {
+      width: 100%;
+      height: 40px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      padding: 0 36px 0 12px;
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+      -webkit-appearance: none;
+      -moz-appearance: textfield;
+      appearance: textfield;
+    }
+
+    .custom-input::-webkit-outer-spin-button,
+    .custom-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+    .custom-input::placeholder { color: var(--muted); opacity: 0.6; }
+
+    .custom-input:focus {
+      border-color: var(--accent2);
+      box-shadow: 0 0 0 3px rgba(200, 168, 75, 0.15);
+    }
+
+    .custom-input.active-custom {
+      border-color: var(--accent2);
+      box-shadow: 0 0 0 3px rgba(200, 168, 75, 0.15);
+    }
+
+    .custom-suffix {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--muted);
+      pointer-events: none;
+    }
+
+    /* ── Duration Preview ──────────────────────────────────────────── */
+    .duration-preview {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+    }
+
+    .duration-preview .dp-label {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .duration-preview .dp-value {
+      font-family: var(--mono);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent2);
+      letter-spacing: 0.04em;
+      transition: color var(--transition);
+    }
+
+    .duration-preview .dp-value.none {
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    /* ── Info Row ──────────────────────────────────────────────────── */
+    .info-items {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .info-chip {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 6px 14px;
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: var(--muted);
+    }
+
+    .info-chip .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .dot-blue   { background: var(--accent); }
+    .dot-amber  { background: var(--accent2); }
+    .dot-green  { background: var(--success); }
+
+    /* ── Validation Error ──────────────────────────────────────────── */
+    .error-msg {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      background: rgba(248, 81, 73, 0.1);
+      border: 1px solid rgba(248, 81, 73, 0.3);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--danger);
+    }
+
+    .error-msg.visible { display: flex; }
+
+    .error-icon {
+      font-style: normal;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    /* ── START Button ──────────────────────────────────────────────── */
+    .btn-start {
+      width: 100%;
+      height: 54px;
+      border: none;
+      border-radius: var(--radius-md);
+      background: var(--accent2);
+      color: #0d1117;
+      font-family: var(--mono);
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition:
+        background var(--transition),
+        box-shadow var(--transition),
+        transform var(--transition),
+        opacity var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-start::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .btn-start:hover:not(:disabled) {
+      background: #d4b55a;
+      box-shadow: 0 0 32px rgba(200, 168, 75, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .btn-start:active:not(:disabled) {
+      transform: translateY(0);
+      box-shadow: 0 0 16px rgba(200, 168, 75, 0.2);
+    }
+
+    .btn-start:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .btn-arrow {
+      font-size: 1rem;
+      transition: transform var(--transition);
+    }
+
+    .btn-start:hover:not(:disabled) .btn-arrow {
+      transform: translateX(3px);
+    }
+
+    /* ── Footer ────────────────────────────────────────────────────── */
+    .footer {
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--muted);
+      opacity: 0.6;
+      letter-spacing: 0.08em;
+    }
+
+    .footer .footer-sep { margin: 0 6px; opacity: 0.5; }
+
+    /* ── Responsive ────────────────────────────────────────────────── */
+    @media (max-width: 480px) {
+      .card { padding: 24px 20px; gap: 22px; }
+      .logo-badge { font-size: 1.45rem; }
+      .pill-grid { grid-template-columns: repeat(4, 1fr); }
+      .info-items { gap: 8px; }
+      .info-chip { font-size: 0.62rem; padding: 5px 10px; }
+    }
+
+    @media (max-width: 360px) {
+      .pill-grid { grid-template-columns: repeat(3, 1fr); }
+      .custom-row { flex-direction: column; align-items: flex-start; }
+      .custom-input-wrap { width: 100%; }
+    }
+
+    /* ── Scanline Overlay (subtle aesthetic) ───────────────────────── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.03) 2px,
+        rgba(0,0,0,0.03) 4px
+      );
+      pointer-events: none;
+      z-index: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-wrapper">
+
+    <!-- ── Header ─────────────────────────────────────────────────── -->
+    <header class="header">
+      <div class="logo-badge" aria-label="EXAM SIM">
+        <span class="part-exam">EXAM</span>
+        <span class="part-slash">//</span>
+        <span class="part-sim">SIM</span>
+      </div>
+      <p class="header-subtitle">Configure Your Examination Session</p>
+    </header>
+
+    <!-- ── Main Card ──────────────────────────────────────────────── -->
+    <main class="card" role="main">
+
+      <!-- Duration Picker -->
+      <section aria-labelledby="duration-heading">
+        <div class="section-label" id="duration-heading">Exam Duration</div>
+
+        <!-- Pill grid -->
+        <div class="pill-grid" role="group" aria-label="Duration presets">
+          <button class="pill" data-minutes="1"  type="button" aria-pressed="false"><span>1</span><span class="pill-unit">min</span></button>
+          <button class="pill" data-minutes="2"  type="button" aria-pressed="false"><span>2</span><span class="pill-unit">min</span></button>
+          <button class="pill" data-minutes="5"  type="button" aria-pressed="false"><span>5</span><span class="pill-unit">min</span></button>
+          <button class="pill" data-minutes="10" type="button" aria-pressed="true" ><span>10</span><span class="pill-unit">min</span></button>
+          <button class="pill" data-minutes="15" type="button" aria-pressed="false"><span>15</span><span class="pill-unit">min</span></button>
+          <button class="pill" data-minutes="30" type="button" aria-pressed="false"><span>30</span><span class="pill-unit">min</span></button>
+          <button class="pill" data-minutes="60" type="button" aria-pressed="false"><span>60</span><span class="pill-unit">min</span></button>
+        </div>
+
+        <!-- Custom duration -->
+        <div class="custom-row" style="margin-top: 14px;">
+          <label class="custom-label" for="custom-min">Custom (min)</label>
+          <div class="custom-input-wrap">
+            <input
+              id="custom-min"
+              class="custom-input"
+              type="number"
+              min="1"
+              max="480"
+              step="1"
+              placeholder="e.g. 45"
+              autocomplete="off"
+              aria-label="Custom duration in minutes"
+            />
+            <span class="custom-suffix">min</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Duration Preview -->
+      <div class="duration-preview" aria-live="polite" aria-atomic="true">
+        <span class="dp-label">Selected Duration</span>
+        <span class="dp-value" id="dp-value">00:10:00</span>
+      </div>
+
+      <!-- Session Info Chips -->
+      <div class="info-items" aria-label="Session information">
+        <div class="info-chip">
+          <span class="dot dot-blue"></span>
+          <span>WebXR Ready</span>
+        </div>
+        <div class="info-chip">
+          <span class="dot dot-amber"></span>
+          <span>Locked Desk Mode</span>
+        </div>
+        <div class="info-chip">
+          <span class="dot dot-green"></span>
+          <span>Auto-Save Results</span>
+        </div>
+      </div>
+
+      <!-- Error Message -->
+      <div class="error-msg" id="error-msg" role="alert">
+        <em class="error-icon">⚠</em>
+        <span id="error-text">Please enter a valid duration between 1 and 480 minutes.</span>
+      </div>
+
+      <!-- START Button -->
+      <button class="btn-start" id="btn-start" type="button" aria-label="Start exam session">
+        <span>Start Exam</span>
+        <span class="btn-arrow">→</span>
+      </button>
+
+    </main>
+
+    <!-- ── Footer ─────────────────────────────────────────────────── -->
+    <footer class="footer">
+      <span class="part-exam" style="color:#ffffff; font-weight:700;">EXAM</span><span style="color:var(--accent2);">//</span><span style="color:var(--muted);">SIM</span>
+      <span class="footer-sep">·</span>
+      Immersive Examination Simulation
+      <span class="footer-sep">·</span>
+      v2.0
+    </footer>
+
+  </div><!-- /.page-wrapper -->
+
+  <script>
+    (function () {
+      'use strict';
+
+      /* ── State ──────────────────────────────────────────────────── */
+      var selectedMinutes = 10;      // default
+      var usingCustom = false;
+
+      /* ── DOM refs ───────────────────────────────────────────────── */
+      var pills       = document.querySelectorAll('.pill');
+      var customInput = document.getElementById('custom-min');
+      var dpValue     = document.getElementById('dp-value');
+      var btnStart    = document.getElementById('btn-start');
+      var errorMsg    = document.getElementById('error-msg');
+      var errorText   = document.getElementById('error-text');
+
+      /* ── Helpers ────────────────────────────────────────────────── */
+      function pad2(n) {
+        return n < 10 ? '0' + n : '' + n;
+      }
+
+      function formatDuration(minutes) {
+        var totalSec = Math.round(minutes * 60);
+        var h = Math.floor(totalSec / 3600);
+        var m = Math.floor((totalSec % 3600) / 60);
+        var s = totalSec % 60;
+        return pad2(h) + ':' + pad2(m) + ':' + pad2(s);
+      }
+
+      function setActivePill(minuteValue) {
+        pills.forEach(function (p) {
+          var match = parseInt(p.getAttribute('data-minutes'), 10) === minuteValue;
+          p.classList.toggle('active', match);
+          p.setAttribute('aria-pressed', match ? 'true' : 'false');
+        });
+      }
+
+      function clearPills() {
+        pills.forEach(function (p) {
+          p.classList.remove('active');
+          p.setAttribute('aria-pressed', 'false');
+        });
+      }
+
+      function showError(msg) {
+        errorText.textContent = msg;
+        errorMsg.classList.add('visible');
+      }
+
+      function hideError() {
+        errorMsg.classList.remove('visible');
+      }
+
+      function updatePreview() {
+        if (selectedMinutes !== null && selectedMinutes > 0) {
+          dpValue.textContent = formatDuration(selectedMinutes);
+          dpValue.classList.remove('none');
+        } else {
+          dpValue.textContent = '——:——:——';
+          dpValue.classList.add('none');
+        }
+      }
+
+      function setDuration(minutes) {
+        selectedMinutes = minutes;
+        updatePreview();
+        hideError();
+      }
+
+      /* ── Init: default selection ────────────────────────────────── */
+      setActivePill(10);
+      updatePreview();
+
+      /* ── Pill click ─────────────────────────────────────────────── */
+      pills.forEach(function (pill) {
+        pill.addEventListener('click', function () {
+          usingCustom = false;
+          customInput.value = '';
+          customInput.classList.remove('active-custom');
+
+          var minutes = parseInt(pill.getAttribute('data-minutes'), 10);
+          setActivePill(minutes);
+          setDuration(minutes);
+        });
+      });
+
+      /* ── Custom input ───────────────────────────────────────────── */
+      customInput.addEventListener('focus', function () {
+        if (customInput.value.trim() !== '') {
+          usingCustom = true;
+          clearPills();
+          customInput.classList.add('active-custom');
+        }
+      });
+
+      customInput.addEventListener('input', function () {
+        var raw = customInput.value.trim();
+        if (raw === '') {
+          /* Revert to last pill selection (or null) */
+          usingCustom = false;
+          customInput.classList.remove('active-custom');
+          /* Re-activate default or leave unselected */
+          setDuration(null);
+          dpValue.textContent = '——:——:——';
+          dpValue.classList.add('none');
+          return;
+        }
+
+        usingCustom = true;
+        clearPills();
+        customInput.classList.add('active-custom');
+
+        var parsed = parseFloat(raw);
+        if (!isNaN(parsed) && parsed >= 1) {
+          setDuration(parsed);
+          hideError();
+        } else {
+          selectedMinutes = null;
+          dpValue.textContent = '——:——:——';
+          dpValue.classList.add('none');
+        }
+      });
+
+      customInput.addEventListener('blur', function () {
+        /* Keep active-custom styling only if there's a valid value */
+        if (customInput.value.trim() === '') {
+          customInput.classList.remove('active-custom');
+          usingCustom = false;
+        }
+      });
+
+      /* ── START EXAM ─────────────────────────────────────────────── */
+      btnStart.addEventListener('click', function () {
+        hideError();
+
+        /* Determine effective minutes */
+        var minutes;
+        if (usingCustom) {
+          minutes = parseFloat(customInput.value.trim());
+        } else {
+          minutes = selectedMinutes;
+        }
+
+        /* Validate */
+        if (minutes === null || isNaN(minutes) || minutes < 1) {
+          showError('Please select or enter a duration of at least 1 minute.');
+          return;
+        }
+        if (minutes > 480) {
+          showError('Maximum exam duration is 480 minutes (8 hours).');
+          return;
+        }
+
+        /* Round to reasonable precision (hundredths of a minute) */
+        minutes = Math.round(minutes * 100) / 100;
+
+        /* Generate session ID – crypto.randomUUID with fallback */
+        var sessionId;
+        if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+          sessionId = window.crypto.randomUUID();
+        } else {
+          /* ES2018-safe fallback UUID v4 */
+          sessionId = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = (Math.random() * 16) | 0;
+            var v = c === 'x' ? r : (r & 0x3) | 0x8;
+            return v.toString(16);
+          });
+        }
+
+        /* Build session object */
+        var session = {
+          id:          sessionId,
+          durationMs:  Math.round(minutes * 60 * 1000),
+          startTs:     null,
+          endTs:       null,
+          completed:   false,
+          exitedEarly: false
+        };
+
+        /* Persist pending session */
+        try {
+          localStorage.setItem('examSim_pending', JSON.stringify(session));
+        } catch (e) {
+          showError('Unable to save session data. Please allow localStorage access.');
+          return;
+        }
+
+        /* Navigate */
+        window.location.href = 'index.html?session=' + encodeURIComponent(sessionId);
+      });
+
+      /* ── Keyboard: Enter on custom input triggers start ─────────── */
+      customInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          btnStart.click();
+        }
+      });
+
+    })();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>EXAM//SIM</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Import map: resolves bare module specifiers to CDN URLs.
+       Three.js is pinned to 0.165.0 (> 2 weeks old, stable).
+       Move to a local node_modules/ install when bundling for production. -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three":          "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js",
+      "three/addons/":  "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════
+       LOADING SCREEN
+  ═══════════════════════════════════════════════════════ -->
+  <div id="loading-screen">
+    <div class="load-content">
+      <div class="load-logo">
+        <span class="logo-exam">EXAM</span><span class="logo-sep">//</span><span class="logo-sim">SIM</span>
+      </div>
+      <div class="load-sub">Immersive Examination Simulation</div>
+      <div class="load-bar-wrap"><div id="load-bar"></div></div>
+      <div id="load-status">Initialising scene…</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       ERROR SCREEN
+  ═══════════════════════════════════════════════════════ -->
+  <div id="error-screen" hidden>
+    <div class="err-content">
+      <div class="err-icon">⚠</div>
+      <h2>Environment failed to load</h2>
+      <p id="error-detail"></p>
+      <ul class="err-tips">
+        <li>Serve the project through a local server (e.g. <code>npx serve .</code> or VS Code Live Server).</li>
+        <li>Confirm <code>assets/models/examination-hall.glb</code> exists.</li>
+        <li>Open the browser console (F12) for the full stack trace.</li>
+      </ul>
+      <button id="btn-retry">Retry</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       HUD OVERLAY  (visible once loaded)
+  ═══════════════════════════════════════════════════════ -->
+  <div id="hud" hidden>
+    <!-- top-left brand -->
+    <div id="hud-brand">
+      <span class="logo-exam">EXAM</span><span class="logo-sep">//</span><span class="logo-sim">SIM</span>
+      <span id="hud-label">Immersive Examination Simulation</span>
+    </div>
+
+    <!-- bottom bar -->
+    <div id="hud-bar">
+      <div id="controls-hint">
+        <span class="key">W A S D</span> Move &nbsp;
+        <span class="key">Mouse</span> Look &nbsp;
+        <span class="key">Click</span> Capture pointer
+      </div>
+      <div id="hud-actions">
+        <a id="btn-start-exam-nav" href="exam-setup.html" class="hud-btn primary" style="text-decoration:none; display:inline-flex; align-items:center;">▶ Start Exam</a>
+        <button id="btn-enter" class="hud-btn">Free Roam</button>
+        <button id="btn-vr"    class="hud-btn" disabled>Checking VR…</button>
+        <button id="btn-reset" class="hud-btn">Reset Position</button>
+      </div>
+    </div>
+
+    <!-- pointer-lock nudge -->
+    <div id="pointer-hint" hidden>Click anywhere to capture mouse</div>
+  </div>
+
+  <!-- Three.js canvas lives here -->
+  <canvas id="three-canvas"></canvas>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

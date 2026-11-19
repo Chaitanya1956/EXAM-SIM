@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EXAM//SIM – Analytics Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Design Tokens ─────────────────────────────────────────── */
+    :root {
+      --bg:       #0d1117;
+      --surface:  #161b22;
+      --surface2: #1c2330;
+      --border:   rgba(255, 255, 255, 0.08);
+      --text:     #e6edf3;
+      --muted:    #8b949e;
+      --accent:   #58a6ff;
+      --accent2:  #c8a84b;
+      --danger:   #f85149;
+      --success:  #3fb950;
+      --mono:     'IBM Plex Mono', monospace;
+      --sans:     'IBM Plex Sans', system-ui, sans-serif;
+      --radius:   8px;
+      --radius-lg:14px;
+    }
+
+    /* ── Reset & Base ───────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Layout Shell ───────────────────────────────────────────── */
+    .shell {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    /* ── Header ─────────────────────────────────────────────────── */
+    header {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 28px 0 32px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 40px;
+    }
+
+    .logo-mark {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, var(--accent2) 0%, #9a7a2e 100%);
+      flex-shrink: 0;
+    }
+
+    .logo-mark svg {
+      width: 26px;
+      height: 26px;
+      fill: #0d1117;
+    }
+
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .logo-title {
+      font-family: var(--mono);
+      font-weight: 600;
+      font-size: 20px;
+      letter-spacing: 0.04em;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .logo-title span { color: var(--accent2); }
+
+    .logo-sub {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .header-spacer { flex: 1; }
+
+    .header-badge {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: rgba(88, 166, 255, 0.1);
+      border: 1px solid rgba(88, 166, 255, 0.25);
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    /* ── Section Headers ─────────────────────────────────────────── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .section-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── Generic Card ─────────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+    }
+
+    /* ── Overview Section ─────────────────────────────────────────── */
+    section#overview { margin-bottom: 44px; }
+
+    .overview-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    @media (max-width: 800px) {
+      .overview-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 480px) {
+      .overview-grid { grid-template-columns: 1fr; }
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: border-color 0.18s, transform 0.18s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--card-accent, var(--accent));
+      opacity: 0.6;
+    }
+
+    .stat-card:hover {
+      border-color: rgba(255, 255, 255, 0.14);
+      transform: translateY(-2px);
+    }
+
+    .stat-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .stat-value {
+      font-family: var(--mono);
+      font-size: 32px;
+      font-weight: 600;
+      line-height: 1;
+      color: var(--text);
+    }
+
+    .stat-value.accent  { color: var(--accent); }
+    .stat-value.amber   { color: var(--accent2); }
+    .stat-value.success { color: var(--success); }
+    .stat-value.danger  { color: var(--danger); }
+
+    .stat-sub {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* ── Stats / Performance Section ─────────────────────────────── */
+    section#stats { margin-bottom: 44px; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    @media (max-width: 700px) {
+      .perf-grid { grid-template-columns: 1fr; }
+    }
+
+    .perf-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .perf-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .simulated-badge {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      background: rgba(200, 168, 75, 0.15);
+      border: 1px solid rgba(200, 168, 75, 0.35);
+      border-radius: 20px;
+      padding: 3px 8px;
+      flex-shrink: 0;
+    }
+
+    .perf-label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .perf-pct {
+      font-family: var(--mono);
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .bar-track {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.07);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--bar-color-start, #58a6ff), var(--bar-color-end, #79c0ff));
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .perf-desc {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* ── Graph Section ───────────────────────────────────────────── */
+    section#timeline { margin-bottom: 44px; }
+
+    .graph-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .graph-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    canvas#perf-graph {
+      display: block;
+      width: 100%;
+      max-width: 600px;
+      height: 180px;
+      margin: 0 auto;
+    }
+
+    /* ── Timeline List ───────────────────────────────────────────── */
+    .timeline-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+    }
+
+    ol#timeline-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .tl-item {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+
+    .tl-item:last-child { border-bottom: none; }
+
+    .tl-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--dot-color, var(--accent));
+      flex-shrink: 0;
+      margin-top: 5px;
+      box-shadow: 0 0 6px var(--dot-color, var(--accent));
+    }
+
+    .tl-content { flex: 1; }
+
+    .tl-event {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .tl-time {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .tl-badge {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 20px;
+      flex-shrink: 0;
+    }
+
+    .tl-badge.info    { color: var(--accent);  background: rgba(88,166,255,0.1);  border: 1px solid rgba(88,166,255,0.25); }
+    .tl-badge.warning { color: var(--accent2); background: rgba(200,168,75,0.1); border: 1px solid rgba(200,168,75,0.25); }
+    .tl-badge.danger  { color: var(--danger);  background: rgba(248,81,73,0.1);  border: 1px solid rgba(248,81,73,0.25); }
+    .tl-badge.success { color: var(--success); background: rgba(63,185,80,0.1);  border: 1px solid rgba(63,185,80,0.25); }
+
+    /* ── Summary Section ─────────────────────────────────────────── */
+    section#summary { margin-bottom: 44px; }
+
+    .summary-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px 32px;
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
+
+    .summary-icon {
+      font-size: 32px;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    .summary-body { flex: 1; }
+
+    .summary-heading {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    p#summary-text {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    /* ── Actions ─────────────────────────────────────────────────── */
+    #actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 44px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 22px;
+      border-radius: var(--radius);
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: opacity 0.15s, transform 0.15s;
+      text-decoration: none;
+      letter-spacing: 0.01em;
+    }
+
+    .btn:hover { opacity: 0.85; transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); opacity: 1; }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #0d1117;
+    }
+
+    .btn-danger {
+      background: rgba(248, 81, 73, 0.12);
+      color: var(--danger);
+      border: 1px solid rgba(248, 81, 73, 0.3);
+    }
+
+    /* ── No Data State ───────────────────────────────────────────── */
+    #no-data {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 80px 24px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    #no-data .nd-icon {
+      font-size: 48px;
+      opacity: 0.5;
+    }
+
+    #no-data .nd-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    #no-data .nd-desc {
+      font-size: 14px;
+    }
+
+    /* ── Footer ─────────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 20px 0 0;
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+
+    footer span { color: var(--accent2); }
+
+    /* ── Scrollbar ───────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+  </style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- ── Header ─────────────────────────────────────────────────── -->
+  <header>
+    <div class="logo-mark">
+      <!-- Simple mortarboard / graduation cap icon -->
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zm-7 9.73V16l7 3.82L19 16v-3.27l-7 3.82-7-3.82z"/>
+      </svg>
+    </div>
+    <div class="logo-text">
+      <div class="logo-title">EXAM<span>//</span>SIM</div>
+      <div class="logo-sub">Analytics Dashboard</div>
+    </div>
+    <div class="header-spacer"></div>
+    <div class="header-badge">Session Report</div>
+  </header>
+
+  <!-- ── No-data placeholder (shown when localStorage is empty) ─── -->
+  <div id="no-data" hidden>
+    <div class="nd-icon">📋</div>
+    <div class="nd-title">No Session Data Found</div>
+    <div class="nd-desc">
+      No exam sessions have been recorded yet.<br>
+      <a href="exam-setup.html">Start an exam</a> to see your analytics here.
+    </div>
+  </div>
+
+  <!-- ── Overview ───────────────────────────────────────────────── -->
+  <section id="overview" aria-label="Session Overview">
+    <div class="section-header">
+      <span class="section-title">Session Overview</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="overview-grid">
+      <!--
+        dashboard.js will inject .stat-card elements into this grid.
+        Skeleton template for reference (JS mirrors this exact structure):
+
+        <div class="stat-card" style="--card-accent: #58a6ff">
+          <div class="stat-label">Total Sessions</div>
+          <div class="stat-value accent" id="val-total">—</div>
+          <div class="stat-sub">all recorded</div>
+        </div>
+      -->
+    </div>
+  </section>
+
+  <!-- ── Performance Statistics ─────────────────────────────────── -->
+  <section id="stats" aria-label="Performance Statistics">
+    <div class="section-header">
+      <span class="section-title">Performance Statistics</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="perf-grid">
+      <!--
+        dashboard.js injects three .perf-card elements here.
+        Each card includes a .simulated-badge, .perf-label,
+        .perf-pct, .bar-track > .bar-fill, and .perf-desc.
+      -->
+    </div>
+  </section>
+
+  <!-- ── Timeline (graph + event list) ─────────────────────────── -->
+  <section id="timeline" aria-label="Session Timeline">
+    <div class="section-header">
+      <span class="section-title">Session Timeline</span>
+      <div class="section-line"></div>
+    </div>
+
+    <!-- Performance graph canvas -->
+    <div class="graph-wrap">
+      <div class="graph-title">Focus &amp; Engagement over Session Time <span style="color:var(--accent2);font-size:11px;">(SIMULATED)</span></div>
+      <canvas id="perf-graph" width="600" height="180" aria-label="Simulated performance graph"></canvas>
+    </div>
+
+    <!-- Event timeline list -->
+    <div class="timeline-wrap">
+      <ol id="timeline-list" aria-label="Exam event timeline">
+        <!-- dashboard.js injects .tl-item <li> elements -->
+      </ol>
+    </div>
+  </section>
+
+  <!-- ── Summary ────────────────────────────────────────────────── -->
+  <section id="summary" aria-label="Session Summary">
+    <div class="section-header">
+      <span class="section-title">Session Summary</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-icon" id="summary-icon">📊</div>
+      <div class="summary-body">
+        <div class="summary-heading" id="summary-heading">Exam Session Report</div>
+        <p id="summary-text">Loading session summary…</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Action Buttons ─────────────────────────────────────────── -->
+  <div id="actions">
+    <a id="btn-new-exam" class="btn btn-primary" href="exam-setup.html">
+      &#43; Start New Exam
+    </a>
+    <button id="btn-clear" class="btn btn-danger" type="button">
+      &#128465; Clear History
+    </button>
+  </div>
+
+  <!-- ── Footer ─────────────────────────────────────────────────── -->
+  <footer>
+    EXAM<span>//</span>SIM &mdash; Browser VR Exam Simulator &mdash; Analytics v1.0
+  </footer>
+
+</div><!-- /.shell -->
+
+<!-- dashboard.js reads localStorage, populates all sections, draws canvas graph -->
+<script type="module" src="js/dashboard.js"></script>
+
+</body>
+</html>
